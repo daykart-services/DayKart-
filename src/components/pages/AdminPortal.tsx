@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2, Package, Users, ShoppingCart, TrendingUp, X, Save, Filter, Clock, Truck, CheckCircle, Check, ArrowRight } from 'lucide-react';
 import { useTheme, useProducts } from '../ThemeContext';
+import { useProductEvents } from '../ProductEventManager';
 
 interface AdminPortalProps {
   onClose: () => void;
@@ -9,6 +10,7 @@ interface AdminPortalProps {
 const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   const { isDark } = useTheme();
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { emitProductAdded, emitProductUpdated, emitProductDeleted } = useProductEvents();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -126,7 +128,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
         featured: newProduct.featured,
       };
       
-      addProduct(productData);
+      const createdProduct = addProduct(productData);
+      
+      // Emit real-time event for immediate UI updates
+      if (createdProduct) {
+        emitProductAdded(createdProduct);
+      }
+      
       resetForm();
       setShowAddProduct(false);
     }
@@ -163,7 +171,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
         featured: newProduct.featured,
       };
       
-      updateProduct(editingProduct.id, productData);
+      const updatedProduct = updateProduct(editingProduct.id, productData);
+      
+      // Emit real-time event for immediate UI updates
+      if (updatedProduct) {
+        emitProductUpdated(updatedProduct);
+      }
+      
       resetForm();
       setEditingProduct(null);
       setShowAddProduct(false);
@@ -173,6 +187,9 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   const handleDeleteProduct = (id: number) => {
     if (confirm('Are you sure you want to delete this product?')) {
       deleteProduct(id);
+      
+      // Emit real-time event for immediate UI updates
+      emitProductDeleted(id);
     }
   };
 
