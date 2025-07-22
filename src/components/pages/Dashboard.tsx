@@ -62,6 +62,10 @@ const Dashboard: React.FC = () => {
     }
   ];
 
+  const handleToggleOrders = () => {
+    setShowOrders(!showOrders);
+  };
+
   // Listen for admin changes to order visibility
   useEffect(() => {
     const handleOrdersVisibilityChange = (event: any) => {
@@ -78,10 +82,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
 
   });
-
-  const handleToggleOrders = () => {
-    setShowOrders(!showOrders);
-  };
 
   const likedProducts = products.filter(p => liked.includes(p.id));
   const cartProducts = cart.map(item => {
@@ -155,7 +155,7 @@ const Dashboard: React.FC = () => {
             }`}
             onClick={() => setActiveTab('orders')}
           >
-            <Truck className="inline mr-2 mb-1" size={20} /> Orders {ordersVisible && `(${orders.length})`}
+            <Truck className="inline mr-2 mb-1" size={20} /> Orders {showOrders && `(${orders.length})`}
           </button>
         </div>
 
