@@ -16,7 +16,6 @@ const Dashboard: React.FC = () => {
   const [ordersVisible, setOrdersVisible] = useState(() => {
     return localStorage.getItem('adminOrdersVisible') === 'true';
   });
-  const [showOrders, setShowOrders] = useState(false);
   const [userDetails, setUserDetails] = useState({
     name: '',
     phone: '',
@@ -62,9 +61,6 @@ const Dashboard: React.FC = () => {
     }
   ];
 
-  const handleToggleOrders = () => {
-    setShowOrders(!showOrders);
-  };
 
   // Listen for admin changes to order visibility
   useEffect(() => {
@@ -155,7 +151,7 @@ const Dashboard: React.FC = () => {
             }`}
             onClick={() => setActiveTab('orders')}
           >
-            <Truck className="inline mr-2 mb-1" size={20} /> Orders {showOrders && `(${orders.length})`}
+            <Truck className="inline mr-2 mb-1" size={20} /> Orders {ordersVisible && `(${orders.length})`}
           </button>
         </div>
 
@@ -262,35 +258,17 @@ const Dashboard: React.FC = () => {
         {/* Orders Tab */}
         {activeTab === 'orders' && (
           <div className="mt-8 w-full">
-            {!showOrders ? (
+            {!ordersVisible ? (
               <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto py-16 px-6 bg-transparent dark:bg-transparent rounded-2xl shadow-md border border-gray-100 dark:border-gray-800">
                 <Package size={48} className="mb-6 text-gray-300 dark:text-gray-700" />
-                <h3 className="text-xl font-semibold mb-2 text-center">No orders to display</h3>
+                <h3 className="text-xl font-semibold mb-2 text-center">Orders Not Available</h3>
                 <p className="text-base text-gray-500 dark:text-gray-400 text-center mb-6">
-                  Click below to view your order history and track your purchases.
+                  Order tracking is currently disabled. Please contact support for assistance with your orders.
                 </p>
-                <button
-                  onClick={handleToggleOrders}
-                  className="px-6 py-3 rounded-full font-semibold text-base transition-all duration-200 bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-                >
-                  View My Orders
-                </button>
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold">Your Orders</h3>
-                  <button
-                    onClick={handleToggleOrders}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isDark 
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
-                    }`}
-                  >
-                    Hide Orders
-                  </button>
-                </div>
+                <h3 className="text-2xl font-bold mb-6">Your Orders</h3>
                 {orders.length === 0 ? (
                   <div className="text-center text-gray-400">No orders yet.</div>
                 ) : (
