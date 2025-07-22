@@ -13,7 +13,9 @@ const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'cart' | 'liked' | 'orders'>('cart');
   const [showCheckout, setShowCheckout] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [showOrders, setShowOrders] = useState(false);
+  const [ordersVisible, setOrdersVisible] = useState(() => {
+    return localStorage.getItem('adminOrdersVisible') === 'true';
+  });
   const [userDetails, setUserDetails] = useState({
     name: '',
     phone: '',
@@ -59,22 +61,20 @@ const Dashboard: React.FC = () => {
     }
   ];
 
-  // Load order display state from localStorage on component mount
+  // Listen for admin changes to order visibility
   useEffect(() => {
-    const savedOrderState = localStorage.getItem('showOrders');
-    if (savedOrderState === 'true') {
-      setShowOrders(true);
-    }
+    const handleOrdersVisibilityChange = (event: any) => {
+      setOrdersVisible(event.detail.visible);
+    };
+
+    window.addEventListener('ordersVisibilityChanged', handleOrdersVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('ordersVisibilityChanged', handleOrdersVisibilityChange);
+    };
   }, []);
-
-  // Save order display state to localStorage whenever it changes
+  // Listen for admin changes to order visibility
   useEffect(() => {
-    localStorage.setItem('showOrders', showOrders.toString());
-  }, [showOrders]);
-
-  const handleToggleOrders = () => {
-    setShowOrders(!showOrders);
-  };
 
   const likedProducts = products.filter(p => liked.includes(p.id));
   const cartProducts = cart.map(item => {
@@ -148,7 +148,7 @@ const Dashboard: React.FC = () => {
             }`}
             onClick={() => setActiveTab('orders')}
           >
-            <Truck className="inline mr-2 mb-1" size={20} /> Orders {showOrders && `(${orders.length})`}
+            <Truck className="inline mr-2 mb-1" size={20} /> Orders {ordersVisible && `(${orders.length})`}
           </button>
         </div>
 
@@ -255,35 +255,17 @@ const Dashboard: React.FC = () => {
         {/* Orders Tab */}
         {activeTab === 'orders' && (
           <div className="mt-8 w-full">
-            {!showOrders ? (
+            {!ordersVisible ? (
               <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto py-16 px-6 bg-transparent dark:bg-transparent rounded-2xl shadow-md border border-gray-100 dark:border-gray-800">
                 <Package size={48} className="mb-6 text-gray-300 dark:text-gray-700" />
-                <h3 className="text-xl font-semibold mb-2 text-center">No orders to display</h3>
+                <h3 className="text-xl font-semibold mb-2 text-center">Orders not available</h3>
                 <p className="text-base text-gray-500 dark:text-gray-400 text-center mb-6">
-                  Click below to view your order history and track your purchases.
+                  Order tracking is currently disabled. Please contact support for order information.
                 </p>
-                <button
-                  onClick={handleToggleOrders}
-                  className="px-6 py-3 rounded-full font-semibold text-base transition-all duration-200 bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-                >
-                  View My Orders
-                </button>
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold">Your Orders</h3>
-                  <button
-                    onClick={handleToggleOrders}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isDark 
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
-                    }`}
-                  >
-                    Hide Orders
-                  </button>
-                </div>
+                <h3 className="text-2xl font-bold mb-6">Your Orders</h3>
                 {orders.length === 0 ? (
                   <div className="text-center text-gray-400">No orders yet.</div>
                 ) : (
