@@ -16,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [ordersVisible, setOrdersVisible] = useState(() => {
     return localStorage.getItem('adminOrdersVisible') === 'true';
   });
+  const [showOrders, setShowOrders] = useState(false);
   const [userDetails, setUserDetails] = useState({
     name: '',
     phone: '',
@@ -63,19 +64,23 @@ const Dashboard: React.FC = () => {
 
   // Listen for admin changes to order visibility
   useEffect(() => {
-    const handleStorageChange = () => {
-      setOrdersVisible(localStorage.getItem('adminOrdersVisible') === 'true');
+    const handleOrdersVisibilityChange = (event: any) => {
+      setOrdersVisible(event.detail.visible);
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
-  const showOrders = ordersVisible;
+    window.addEventListener('ordersVisibilityChanged', handleOrdersVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('ordersVisibilityChanged', handleOrdersVisibilityChange);
+    };
+  }, []);
+  // Listen for admin changes to order visibility
+  useEffect(() => {
+
+  });
 
   const handleToggleOrders = () => {
-    const newVisibility = !showOrders;
-    setOrdersVisible(newVisibility);
-    localStorage.setItem('adminOrdersVisible', newVisibility.toString());
+    setShowOrders(!showOrders);
   };
 
   const likedProducts = products.filter(p => liked.includes(p.id));
@@ -150,7 +155,7 @@ const Dashboard: React.FC = () => {
             }`}
             onClick={() => setActiveTab('orders')}
           >
-            <Truck className="inline mr-2 mb-1" size={20} /> Orders {showOrders && `(${orders.length})`}
+            <Truck className="inline mr-2 mb-1" size={20} /> Orders {ordersVisible && `(${orders.length})`}
           </button>
         </div>
 
